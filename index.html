@@ -50,6 +50,12 @@
     main { flex-direction:column; height:auto; }
     #side { width:100%; max-height:45vh; border-right:none; border-bottom:1px solid #e3e6ea; }
   }
+
+  #textPanel { display:none; background:#fff; border-radius:10px; box-shadow:0 2px 14px rgba(0,0,0,.12); margin-bottom:12px; text-align:left; }
+  #textHead { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid #eee; font-size:13px; color:#333; }
+  #textHead button { border:1px solid #d0d7de; background:#f7f8fa; border-radius:6px; padding:3px 10px; font-size:12px; cursor:pointer; }
+  #textBody { padding:10px 12px; white-space:pre-wrap; word-break:break-all; font-size:14px; line-height:1.8; max-height:44vh; overflow:auto; }
+  #textBody mark.hl { background:#ffe066; padding:0 1px; }
 </style>
 </head>
 <body>
@@ -79,6 +85,10 @@
       <span id="copyTip" style="font-size:12px;color:#0a0"></span>
     </div>
     <div id="stageWrap">
+  <div id="textPanel" style="display:none">
+    <div id="textHead"><span id="textHeadMain"></span><button id="btnTextToggle" type="button">收起文字</button></div>
+    <div id="textBody"></div>
+  </div>
       <div id="stage">
         <img id="pageimg" alt="page">
         <div id="boxes"></div>
@@ -139,6 +149,27 @@ function snippet(page, tokens) {
   return nt.slice(0, 80);
 }
 
+function escHtml(s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+function markLine(line) {
+  var s = escHtml(line);
+  (curTokens || []).forEach(function (t) {
+    if (!t) return;
+    s = s.split(t).join('\u0001' + t + '\u0002');
+  });
+  return s.split('\u0001').join('<mark class="hl">').split('\u0002').join('</mark>');
+}
+var textOpen = true;
+function renderText(p) {
+  var page = PAGES[p] || {};
+  var panel = $('textPanel');
+  if (!panel) return;
+  panel.style.display = 'block';
+  $('textHeadMain').textContent = '第 ' + p + ' 页' + (page.n ? ' · ' + page.n : '') + (page.c ? ' · ' + page.c : '');
+  var t = String(page.t || '').trim();
+  $('textBody').innerHTML = t ? t.split(/\n/).map(function (l) { return markLine(l); }).join('\n') : '<span style="color:#999">（本页无文字）</span>';
+  $('textBody').style.display = textOpen ? 'block' : 'none';
+  $('btnTextToggle').textContent = textOpen ? '收起文字' : '展开文字';
+}
 function doSearch() {
   var q = $('q').value.trim();
   var tokens = q.split(/\s+/).filter(Boolean).map(normOf);
@@ -183,6 +214,7 @@ function doSearch() {
 function showPage(p) {
   p = Math.max(0, Math.min(TOTAL - 1, p));
   cur = p;
+  renderText(p);
   var img = $('pageimg');
   img.style.display = '';
   img.style.width = scaleFit ? '100%' : (img._zoom || '100%');
@@ -346,6 +378,8 @@ window.addEventListener('hashchange', function () {
   else { var im0 = $('pageimg'); if (im0) { im0.removeAttribute('src'); im0.style.display = 'none'; } var tp = $('loadTip'); if (tp) { tp.style.display = 'block'; tp.textContent = '在上方输入关键词开始检索（如：铝 / 水泥 / 轴承）'; } }
 })();
 
+var bt = $('btnTextToggle');
+if (bt) bt.addEventListener('click', function () { textOpen = !textOpen; renderText(cur); });
 // 数据加载：CDN 优先，失败回退本地；就绪后开放搜索
 (function loadData() {
   var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/data.js', 'data.js'];
