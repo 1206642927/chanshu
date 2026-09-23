@@ -255,7 +255,7 @@ function preloadNear(p) {
 function ensureBoxes(p, cb) {
   if (window.BOXES && window.BOXES[p]) { cb(); return; }
   var pad = String(p).padStart(4, '0');
-  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@49c29e6498d62e121a8a9a6053d4aa7ed3be781c/boxes/' + pad + '.js', 'boxes/' + pad + '.js'];
+  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@c24df9137cf30b95bd3ff19f28b884e6a354a4b3/boxes/' + pad + '.js', 'boxes/' + pad + '.js'];
   var i = 0;
   function tryNext() {
     if (i >= urls.length) { cb(); return; }
@@ -387,7 +387,7 @@ var bt = $('btnTextToggle');
 if (bt) bt.addEventListener('click', function () { textOpen = !textOpen; renderText(cur); });
 // 数据加载：CDN 优先，失败回退本地；就绪后开放搜索
 (function loadData() {
-  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@49c29e6498d62e121a8a9a6053d4aa7ed3be781c/data.js', 'https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/data.js', 'data.js'];
+  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@c24df9137cf30b95bd3ff19f28b884e6a354a4b3/data.js', 'https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/data.js', 'data.js'];
   var i = 0;
   var tp = $('loadTip');
   function setTip(t, hide) {
