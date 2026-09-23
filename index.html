@@ -188,7 +188,7 @@ function showPage(p) {
   img.style.width = scaleFit ? '100%' : (img._zoom || '100%');
   var tip = $('loadTip');
   if (tip) { tip.style.display = 'block'; tip.style.cursor = ''; tip.textContent = '页面加载中…'; tip.onclick = null; }
-  img.onload = function () { if (tip) tip.style.display = 'none'; ensureBoxes(cur, drawBoxes); };
+  img.onload = function () { if (tip) tip.style.display = 'none'; img.style.visibility = 'visible'; ensureBoxes(cur, drawBoxes); preloadNear(cur); };
   img.onerror = function () {
     if (!img._cdnTried) {
       img._cdnTried = true;
@@ -200,6 +200,7 @@ function showPage(p) {
     }
   };
   img._cdnTried = false;
+  img.style.visibility = 'hidden';
   img.src = IMG(p);
   $('pgInput').value = p;
   $('pgLabel').textContent = label(p) + (entOf(p) ? ' · ' + entOf(p) : '');
@@ -207,6 +208,13 @@ function showPage(p) {
   // 侧栏高亮
   var items = document.querySelectorAll('.res-item');
   for (var i = 0; i < items.length; i++) items[i].classList.toggle('active', +items[i].dataset.p === p);
+}
+
+function preloadNear(p) {
+  var q = p + 1;
+  if (q >= TOTAL) return;
+  var im = new Image();
+  im.src = IMG(q);
 }
 
 function ensureBoxes(p, cb) {
@@ -230,8 +238,7 @@ function drawBoxes() {
   if (!$('hlToggle').checked || !curTokens.length) return;
   var page = PAGES[cur];
   var img = $('pageimg');
-  var nw = img.naturalWidth || 1680, nh = img.naturalHeight || 2281;
-  var sw = img.clientWidth / nw;
+  var sw = img.clientWidth / 1000;   // 高亮框已归一化到 1000px 基准
   var hits = [];
   (((window.BOXES && window.BOXES[cur]) || page.w || [])).forEach(function (w) {
     var txt = normOf(w[4]);

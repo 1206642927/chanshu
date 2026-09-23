@@ -1,1 +1,1 @@
-window.BOXES=window.BOXES||{};window.BOXES[2]=[[1679,2070,1680,2104,"|"]];
+window.BOXES=window.BOXES||{};window.BOXES[2]=[[999,1232,1000,1252,"|"]];
