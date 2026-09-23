@@ -90,7 +90,7 @@
 
 <div id="thumbs"><div class="tip">点击任意页跳转（Esc 关闭）</div><div class="grid" id="thumbGrid"></div></div>
 
-<script src="data.js"></script>
+<!-- 数据动态加载 -->
 <script>
 var PAGES = window.BOOK_DATA || [];
 var META = window.BOOK_META || {};
@@ -211,11 +211,18 @@ function showPage(p) {
 
 function ensureBoxes(p, cb) {
   if (window.BOXES && window.BOXES[p]) { cb(); return; }
-  var s = document.createElement('script');
-  s.src = 'boxes/' + String(p).padStart(4, '0') + '.js';
-  s.onload = function () { cb(); };
-  s.onerror = function () { cb(); };
-  document.head.appendChild(s);
+  var pad = String(p).padStart(4, '0');
+  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/boxes/' + pad + '.js', 'boxes/' + pad + '.js'];
+  var i = 0;
+  function tryNext() {
+    if (i >= urls.length) { cb(); return; }
+    var s = document.createElement('script');
+    s.src = urls[i++];
+    s.onload = function () { cb(); };
+    s.onerror = tryNext;
+    document.head.appendChild(s);
+  }
+  tryNext();
 }
 function drawBoxes() {
   var box = $('boxes');
@@ -330,6 +337,36 @@ window.addEventListener('hashchange', function () {
   var m = location.hash.match(/p=(\d+)/);
   if (m) { showPage(parseInt(m[1], 10)); }
   else { var im0 = $('pageimg'); if (im0) { im0.removeAttribute('src'); im0.style.display = 'none'; } var tp = $('loadTip'); if (tp) { tp.style.display = 'block'; tp.textContent = '在上方输入关键词开始检索（如：铝 / 水泥 / 轴承）'; } }
+})();
+
+// 数据加载：CDN 优先，失败回退本地；就绪后开放搜索
+(function loadData() {
+  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/data.js', 'data.js'];
+  var i = 0;
+  var tp = $('loadTip');
+  function setTip(t, hide) {
+    if (!tp) return;
+    tp.style.display = hide ? 'none' : 'block';
+    tp.textContent = t;
+  }
+  setTip('正在加载检索数据（约1MB，仅首次需要）…');
+  function ready() {
+    PAGES = window.BOOK_DATA || [];
+    META = window.BOOK_META || {};
+    TOTAL = PAGES.length;
+    PAGES.forEach(function (p) { p.nt = String(p.t || '').replace(/\s+/g, ''); });
+    setTip('数据就绪 ✓ 输入关键词开始搜索（如：铝 / 水泥 / 轴承）');
+    setTimeout(function () { if (!cur) setTip('', true); }, 3000);
+  }
+  function tryNext() {
+    if (i >= urls.length) { setTip('数据加载失败：请检查网络后刷新页面重试'); return; }
+    var s = document.createElement('script');
+    s.src = urls[i++];
+    s.onload = ready;
+    s.onerror = tryNext;
+    document.head.appendChild(s);
+  }
+  tryNext();
 })();
 </script>
 </body>
