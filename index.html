@@ -82,6 +82,7 @@
       <div id="stage">
         <img id="pageimg" alt="page">
         <div id="boxes"></div>
+        <div id="loadTip" style="display:none;text-align:center;padding:40px 12px;color:#667;font-size:14px">页面加载中…</div>
       </div>
     </div>
   </section>
@@ -96,6 +97,7 @@ var META = window.BOOK_META || {};
 var TOTAL = PAGES.length;
 PAGES.forEach(function (p) { p.nt = String(p.t || '').replace(/\s+/g, ''); });
 var IMG = function (p) { return 'img/' + String(p).padStart(4, '0') + '.jpg'; };
+var CDN_IMG = function (p) { return "https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/img/" + String(p).padStart(4, "0") + ".jpg"; };
 var cur = 0, curTokens = [], scaleFit = true;
 
 function $(id) { return document.getElementById(id); }
@@ -146,7 +148,9 @@ function doSearch() {
   if (!tokens.length) { $('stat').textContent = ''; return; }
   var matches = [];
   for (var p = 0; p < TOTAL; p++) {
-    var page = PAGES[p], ok = true, cnt = 0;
+    var page = PAGES[p];
+    if (!page || !page.n) continue;
+    var ok = true, cnt = 0;
     for (var i = 0; i < tokens.length; i++) {
       var c = countOcc(page.nt, tokens[i]);
       if (c === 0) { ok = false; break; }
@@ -180,9 +184,23 @@ function showPage(p) {
   p = Math.max(0, Math.min(TOTAL - 1, p));
   cur = p;
   var img = $('pageimg');
+  img.style.display = '';
   img.style.width = scaleFit ? '100%' : (img._zoom || '100%');
+  var tip = $('loadTip');
+  if (tip) { tip.style.display = 'block'; tip.style.cursor = ''; tip.textContent = '页面加载中…'; tip.onclick = null; }
+  img.onload = function () { if (tip) tip.style.display = 'none'; ensureBoxes(cur, drawBoxes); };
+  img.onerror = function () {
+    if (!img._cdnTried) {
+      img._cdnTried = true;
+      if (tip) tip.textContent = '主站较慢，自动切换加速源…';
+      img.src = CDN_IMG(p);
+    } else {
+      img._cdnTried = false;
+      if (tip) { tip.style.display = 'block'; tip.style.cursor = 'pointer'; tip.textContent = '网络较慢，图片未加载 —— 点这里重试'; tip.onclick = function () { showPage(p); }; }
+    }
+  };
+  img._cdnTried = false;
   img.src = IMG(p);
-  img.onload = function () { ensureBoxes(cur, drawBoxes); };
   $('pgInput').value = p;
   $('pgLabel').textContent = label(p) + (entOf(p) ? ' · ' + entOf(p) : '');
   location.hash = 'p=' + p;
@@ -310,8 +328,8 @@ window.addEventListener('hashchange', function () {
 // 初始化
 (function init() {
   var m = location.hash.match(/p=(\d+)/);
-  var start = m ? parseInt(m[1], 10) : 0;
-  showPage(start);
+  if (m) { showPage(parseInt(m[1], 10)); }
+  else { var im0 = $('pageimg'); if (im0) { im0.removeAttribute('src'); im0.style.display = 'none'; } var tp = $('loadTip'); if (tp) { tp.style.display = 'block'; tp.textContent = '在上方输入关键词开始检索（如：铝 / 水泥 / 轴承）'; } }
 })();
 </script>
 </body>
