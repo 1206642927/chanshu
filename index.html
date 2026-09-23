@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026淮北市规上制造业企业产需信息汇编 · 在线检索</title>
+<style>
+  :root { --accent:#0d6efd; --bg:#f4f5f7; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; font-family:"Microsoft YaHei","PingFang SC",sans-serif; background:var(--bg); color:#222; }
+  header { display:flex; align-items:center; gap:12px; padding:10px 16px; background:#fff; border-bottom:1px solid #e3e6ea; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0; white-space:nowrap; }
+  #q { flex:1; min-width:220px; padding:9px 12px; font-size:14px; border:1px solid #ccd2da; border-radius:8px; outline:none; }
+  #q:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(13,110,253,.12); }
+  button, .btn { padding:8px 12px; font-size:13px; border:1px solid #ccd2da; background:#fff; border-radius:8px; cursor:pointer; }
+  button:hover { border-color:var(--accent); color:var(--accent); }
+  #stat { font-size:12px; color:#666; }
+  main { display:flex; height:calc(100% - 60px); }
+  #side { width:330px; min-width:250px; overflow:auto; background:#fff; border-right:1px solid #e3e6ea; }
+  .res-item { display:flex; gap:8px; padding:9px 10px; border-bottom:1px solid #f0f2f5; cursor:pointer; }
+  .res-item:hover { background:#f3f7ff; }
+  .res-item.active { background:#e7f0ff; }
+  .res-item img { width:52px; height:70px; object-fit:cover; border:1px solid #e0e3e8; background:#fafafa; }
+  .res-item .info { flex:1; min-width:0; }
+  .pt { font-size:13px; font-weight:600; }
+  .ent { font-size:12px; color:#0d6efd; margin-top:1px; word-break:break-all; }
+  .cnt { font-size:11px; color:#999; margin:2px 0; }
+  .snip { font-size:11.5px; color:#555; line-height:1.45; word-break:break-all; }
+  .snip mark { background:#ffe066; }
+  #viewer { flex:1; display:flex; flex-direction:column; min-width:0; }
+  #toolbar { display:flex; align-items:center; gap:8px; padding:8px 12px; background:#fff; border-bottom:1px solid #e3e6ea; flex-wrap:wrap; }
+  #pgInput { width:64px; padding:5px 6px; border:1px solid #ccd2da; border-radius:6px; text-align:center; }
+  #stageWrap { flex:1; overflow:auto; background:#e9ebee; padding:16px; text-align:center; }
+  #stage { position:relative; display:inline-block; background:#fff; box-shadow:0 2px 14px rgba(0,0,0,.15); }
+  #pageimg { display:block; width:100%; height:auto; }
+  #boxes { position:absolute; inset:0; pointer-events:none; }
+  .hlbox { position:absolute; background:rgba(255,193,7,.38); border:1.5px solid #f0a000; border-radius:2px; }
+  #thumbs { display:none; position:fixed; inset:0; background:rgba(0,0,0,.75); overflow:auto; padding:20px; z-index:50; }
+  #thumbs .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; max-width:1200px; margin:0 auto; }
+  #thumbs img { width:100%; border:2px solid transparent; cursor:pointer; background:#fff; }
+  #thumbs img:hover { border-color:#ffe066; }
+  #thumbs .tip { color:#fff; text-align:center; font-size:13px; margin-bottom:12px; }
+  .entpanel { padding:8px 10px; }
+  .entpanel input { width:100%; padding:7px 9px; border:1px solid #ccd2da; border-radius:7px; margin-bottom:8px; }
+  .entrow { padding:6px 8px; border-bottom:1px solid #f2f4f7; cursor:pointer; font-size:12.5px; }
+  .entrow:hover { background:#f3f7ff; }
+  .entrow b { color:#0d6efd; font-weight:600; }
+  .empty { padding:20px; color:#999; font-size:13px; text-align:center; }
+  @media (max-width:820px) {
+    main { flex-direction:column; height:auto; }
+    #side { width:100%; max-height:45vh; border-right:none; border-bottom:1px solid #e3e6ea; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>产需信息汇编 · 在线检索</h1>
+  <input id="q" placeholder="输入企业名称 / 产品 / 原材料 / 关键词，如：中煤远大、水泥、轴承、联系人…">
+  <button id="btnEnt">企业名录</button>
+  <button id="btnThumb">缩略图</button>
+  <span id="stat"></span>
+</header>
+
+<main>
+  <aside id="side">
+    <div id="results"><div class="empty">输入关键词开始检索；点击结果即可跳转到对应页面并高亮。</div></div>
+  </aside>
+  <section id="viewer">
+    <div id="toolbar">
+      <button id="prev">‹ 上一页</button>
+      <input id="pgInput" type="number" min="1" max="527">
+      <span id="pgLabel" style="font-size:13px;color:#555"></span>
+      <button id="next">下一页 ›</button>
+      <button id="btnFit">适应宽度</button>
+      <button id="btnZoomIn">＋</button>
+      <button id="btnZoomOut">－</button>
+      <label style="font-size:13px;color:#555"><input type="checkbox" id="hlToggle" checked> 高亮命中</label>
+      <button id="btnLink">复制本页链接</button>
+      <span id="copyTip" style="font-size:12px;color:#0a0"></span>
+    </div>
+    <div id="stageWrap">
+      <div id="stage">
+        <img id="pageimg" alt="page">
+        <div id="boxes"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="thumbs"><div class="tip">点击任意页跳转（Esc 关闭）</div><div class="grid" id="thumbGrid"></div></div>
+
+<script src="data.js"></script>
+<script>
+var PAGES = window.BOOK_DATA || [];
+var META = window.BOOK_META || {};
+var TOTAL = PAGES.length;
+var IMG = function (p) { return 'img/' + String(p).padStart(4, '0') + '.jpg'; };
+var cur = 0, curTokens = [], scaleFit = true;
+
+function $(id) { return document.getElementById(id); }
+function normOf(s) { return String(s || '').replace(/\s+/g, ''); }
+function esc(s) { return String(s || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function label(p) {
+  if (p === 0) return '封面';
+  if (p === 526) return '封底';
+  var printed = p - 20;
+  return '第 ' + printed + ' 页（图' + p + '）';
+}
+function entOf(p) { return (PAGES[p] && PAGES[p].n) || ''; }
+function chapOf(p) { return (PAGES[p] && PAGES[p].c) || ''; }
+function parkOf(p) { return (PAGES[p] && PAGES[p].k) || ''; }
+
+// 预计算每页归一化文本（含企业名，便于按名称检索）
+for (var i = 0; i < TOTAL; i++) {
+  var pg = PAGES[i];
+  pg.nt = normOf((pg.n || '') + (pg.c || '') + (pg.k || '') + (pg.t || ''));
+}
+
+function countOcc(hay, needle) {
+  if (!needle) return 0;
+  var n = 0, idx = 0;
+  while ((idx = hay.indexOf(needle, idx)) >= 0) { n++; idx += needle.length; }
+  return n;
+}
+function snippet(page, tokens) {
+  var t = page.t || '';
+  var nt = normOf(t);
+  for (var k = 0; k < tokens.length; k++) {
+    var pos = nt.indexOf(tokens[k]);
+    if (pos >= 0) {
+      var s = Math.max(0, pos - 30);
+      var seg = ('…' + nt.slice(s, pos + 60) + '…');
+      return seg.replace(new RegExp('(' + esc(tokens[k]) + ')', 'g'), '<mark>$1</mark>');
+    }
+  }
+  return nt.slice(0, 80);
+}
+
+function doSearch() {
+  var q = $('q').value.trim();
+  var tokens = q.split(/\s+/).filter(Boolean).map(normOf);
+  curTokens = tokens;
+  var out = $('results');
+  out.innerHTML = '';
+  if (!tokens.length) { $('stat').textContent = ''; return; }
+  var matches = [];
+  for (var p = 0; p < TOTAL; p++) {
+    var page = PAGES[p], ok = true, cnt = 0;
+    for (var i = 0; i < tokens.length; i++) {
+      var c = countOcc(page.nt, tokens[i]);
+      if (c === 0) { ok = false; break; }
+      if (i === 0) cnt = c;
+    }
+    if (ok) matches.push({ p: p, cnt: cnt });
+  }
+  $('stat').textContent = '命中 ' + matches.length + ' 页';
+  var cap = 300;
+  matches.slice(0, cap).forEach(function (m) {
+    var page = PAGES[m.p];
+    var el = document.createElement('div');
+    el.className = 'res-item';
+    el.innerHTML = '<img loading="lazy" src="' + IMG(m.p) + '">' +
+      '<div class="info"><div class="pt">' + label(m.p) + ' · 命中 ' + m.cnt + ' 处</div>' +
+      (page.n ? '<div class="ent">' + page.n + '</div>' : '') +
+      '<div class="snip">' + snippet(page, tokens) + '</div></div>';
+    el.onclick = function () { showPage(m.p); };
+    out.appendChild(el);
+  });
+  if (!matches.length) out.innerHTML = '<div class="empty">没有找到，换个关键词试试（建议用企业名核心 2~4 个字）</div>';
+  if (matches.length > cap) {
+    var more = document.createElement('div');
+    more.style.cssText = 'padding:10px;color:#888;font-size:12px;text-align:center';
+    more.textContent = '仅显示前 ' + cap + ' 页，请输入更精确的关键词';
+    out.appendChild(more);
+  }
+}
+
+function showPage(p) {
+  p = Math.max(0, Math.min(TOTAL - 1, p));
+  cur = p;
+  var img = $('pageimg');
+  img.style.width = scaleFit ? '100%' : (img._zoom || '100%');
+  img.src = IMG(p);
+  img.onload = function () { drawBoxes(); };
+  $('pgInput').value = p;
+  $('pgLabel').textContent = label(p) + (entOf(p) ? ' · ' + entOf(p) : '');
+  location.hash = 'p=' + p;
+  // 侧栏高亮
+  var items = document.querySelectorAll('.res-item');
+  for (var i = 0; i < items.length; i++) items[i].classList.toggle('active', +items[i].dataset.p === p);
+}
+
+function drawBoxes() {
+  var box = $('boxes');
+  box.innerHTML = '';
+  if (!$('hlToggle').checked || !curTokens.length) return;
+  var page = PAGES[cur];
+  var img = $('pageimg');
+  var nw = img.naturalWidth || 1680, nh = img.naturalHeight || 2281;
+  var sw = img.clientWidth / nw;
+  var hits = [];
+  (page.w || []).forEach(function (w) {
+    var txt = normOf(w[4]);
+    for (var k = 0; k < curTokens.length; k++) {
+      if (curTokens[k] && txt.indexOf(curTokens[k]) >= 0) { hits.push(w); break; }
+    }
+  });
+  hits.slice(0, 400).forEach(function (w) {
+    var d = document.createElement('div');
+    d.className = 'hlbox';
+    d.style.left = (w[0] * sw) + 'px';
+    d.style.top = (w[1] * sw) + 'px';
+    d.style.width = ((w[2] - w[0]) * sw) + 'px';
+    d.style.height = ((w[3] - w[1]) * sw) + 'px';
+    box.appendChild(d);
+  });
+}
+
+// 企业名录
+function buildEntList() {
+  var list = [];
+  for (var p = 0; p < TOTAL; p++) if (PAGES[p].n) list.push({ p: p, n: PAGES[p].n, c: PAGES[p].c });
+  var out = $('results');
+  out.innerHTML = '<div class="entpanel"><input id="entFilter" placeholder="输入企业名筛选…"><div id="entList"></div></div>';
+  var render = function (kw) {
+    var box = document.getElementById('entList');
+    box.innerHTML = '';
+    var k = normOf(kw);
+    var n = 0;
+    list.forEach(function (it) {
+      if (k && normOf(it.n).indexOf(k) < 0) return;
+      n++;
+      var d = document.createElement('div');
+      d.className = 'entrow';
+      d.innerHTML = '<b>' + it.n + '</b>' + (it.c ? ' <span style="color:#999">· ' + it.c.replace('产业', '') + '</span>' : '');
+      d.onclick = function () { showPage(it.p); window.scrollTo(0, 0); };
+      box.appendChild(d);
+    });
+    if (!n) box.innerHTML = '<div class="empty">没有匹配的企业</div>';
+  };
+  render('');
+  document.getElementById('entFilter').addEventListener('input', function () { render(this.value); });
+}
+
+// 缩略图
+function buildThumbs() {
+  var g = $('thumbGrid');
+  if (g.childElementCount) { $('thumbs').style.display = 'block'; return; }
+  for (var p = 0; p < TOTAL; p++) {
+    var img = document.createElement('img');
+    img.loading = 'lazy';
+    img.src = IMG(p);
+    img.title = label(p);
+    img.dataset.p = p;
+    img.onclick = function () { showPage(+this.dataset.p); $('thumbs').style.display = 'none'; };
+    g.appendChild(img);
+  }
+  $('thumbs').style.display = 'block';
+}
+
+// 事件绑定
+$('q').addEventListener('input', function () { clearTimeout(window._t); window._t = setTimeout(doSearch, 220); });
+$('btnEnt').addEventListener('click', buildEntList);
+$('btnThumb').addEventListener('click', buildThumbs);
+$('thumbs').addEventListener('click', function (e) { if (e.target === this) this.style.display = 'none'; });
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') $('thumbs').style.display = 'none';
+  if (document.activeElement === $('q') || document.activeElement.tagName === 'INPUT') return;
+  if (e.key === 'ArrowLeft') showPage(cur - 1);
+  if (e.key === 'ArrowRight') showPage(cur + 1);
+});
+$('prev').addEventListener('click', function () { showPage(cur - 1); });
+$('next').addEventListener('click', function () { showPage(cur + 1); });
+$('pgInput').addEventListener('change', function () { showPage(parseInt(this.value, 10) || 0); });
+$('btnFit').addEventListener('click', function () { scaleFit = true; $('pageimg').style.width = '100%'; drawBoxes(); });
+$('btnZoomIn').addEventListener('click', function () {
+  scaleFit = false;
+  var img = $('pageimg');
+  img._zoom = (parseInt(img._zoom || '100', 10) + 25) + '%';
+  img.style.width = img._zoom; drawBoxes();
+});
+$('btnZoomOut').addEventListener('click', function () {
+  scaleFit = false;
+  var img = $('pageimg');
+  img._zoom = Math.max(25, parseInt(img._zoom || '100', 10) - 25) + '%';
+  img.style.width = img._zoom; drawBoxes();
+});
+$('hlToggle').addEventListener('change', drawBoxes);
+$('btnLink').addEventListener('click', function () {
+  var url = location.origin + location.pathname + '#p=' + cur;
+  var done = function () { $('copyTip').textContent = '已复制：' + url; setTimeout(function () { $('copyTip').textContent = ''; }, 2500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () { prompt('复制本页链接', url); });
+  else prompt('复制本页链接', url);
+});
+$('pageimg').addEventListener('load', drawBoxes);
+window.addEventListener('hashchange', function () {
+  var m = location.hash.match(/p=(\d+)/);
+  if (m) showPage(parseInt(m[1], 10));
+});
+
+// 初始化
+(function init() {
+  var m = location.hash.match(/p=(\d+)/);
+  var start = m ? parseInt(m[1], 10) : 0;
+  showPage(start);
+})();
+</script>
+</body>
+</html>
