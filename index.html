@@ -182,7 +182,7 @@ function showPage(p) {
   var img = $('pageimg');
   img.style.width = scaleFit ? '100%' : (img._zoom || '100%');
   img.src = IMG(p);
-  img.onload = function () { drawBoxes(); };
+  img.onload = function () { ensureBoxes(cur, drawBoxes); };
   $('pgInput').value = p;
   $('pgLabel').textContent = label(p) + (entOf(p) ? ' · ' + entOf(p) : '');
   location.hash = 'p=' + p;
@@ -191,6 +191,14 @@ function showPage(p) {
   for (var i = 0; i < items.length; i++) items[i].classList.toggle('active', +items[i].dataset.p === p);
 }
 
+function ensureBoxes(p, cb) {
+  if (window.BOXES && window.BOXES[p]) { cb(); return; }
+  var s = document.createElement('script');
+  s.src = 'boxes/' + String(p).padStart(4, '0') + '.js';
+  s.onload = function () { cb(); };
+  s.onerror = function () { cb(); };
+  document.head.appendChild(s);
+}
 function drawBoxes() {
   var box = $('boxes');
   box.innerHTML = '';
@@ -200,7 +208,7 @@ function drawBoxes() {
   var nw = img.naturalWidth || 1680, nh = img.naturalHeight || 2281;
   var sw = img.clientWidth / nw;
   var hits = [];
-  (page.w || []).forEach(function (w) {
+  (((window.BOXES && window.BOXES[cur]) || page.w || [])).forEach(function (w) {
     var txt = normOf(w[4]);
     for (var k = 0; k < curTokens.length; k++) {
       if (curTokens[k] && txt.indexOf(curTokens[k]) >= 0) { hits.push(w); break; }
