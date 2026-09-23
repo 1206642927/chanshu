@@ -94,6 +94,7 @@
 var PAGES = window.BOOK_DATA || [];
 var META = window.BOOK_META || {};
 var TOTAL = PAGES.length;
+PAGES.forEach(function (p) { p.nt = String(p.t || '').replace(/\s+/g, ''); });
 var IMG = function (p) { return 'img/' + String(p).padStart(4, '0') + '.jpg'; };
 var cur = 0, curTokens = [], scaleFit = true;
 
