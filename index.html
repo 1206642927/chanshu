@@ -257,7 +257,7 @@ function preloadNear(p) {
 function ensureBoxes(p, cb) {
   if (window.BOXES && window.BOXES[p]) { cb(); return; }
   var pad = String(p).padStart(4, '0');
-  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@ee5d2e9f1fcf59f184cb91325cb28cec0f5b74f5/boxes/' + pad + '.js', 'boxes/' + pad + '.js'];
+  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@4ac13268888ee4ba6377ccb7a0fdf195fd67ddc2/boxes/' + pad + '.js', 'boxes/' + pad + '.js'];
   var i = 0;
   function tryNext() {
     if (i >= urls.length) { cb(); return; }
@@ -389,7 +389,7 @@ var bt = $('btnTextToggle');
 if (bt) bt.addEventListener('click', function () { textOpen = !textOpen; renderText(cur); });
 // 数据加载：CDN 优先，失败回退本地；就绪后开放搜索
 (function loadData() {
-  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@ee5d2e9f1fcf59f184cb91325cb28cec0f5b74f5/data.js', 'https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/data.js', 'data.js'];
+  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@4ac13268888ee4ba6377ccb7a0fdf195fd67ddc2/data.js', 'https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/data.js', 'data.js'];
   var i = 0;
   var tp = $('loadTip');
   function setTip(t, hide) {
@@ -399,7 +399,7 @@ if (bt) bt.addEventListener('click', function () { textOpen = !textOpen; renderT
   }
   setTip('正在加载检索数据（约1MB，仅首次需要）…');
   function ready() {
-    if (!(window.BOOK_META && window.BOOK_META.version >= 6)) { tryNext(); return; }
+    if (!(window.BOOK_META && window.BOOK_META.version >= 7)) { tryNext(); return; }
     PAGES = window.BOOK_DATA || [];
     META = window.BOOK_META || {};
     TOTAL = PAGES.length;
