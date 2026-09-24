@@ -56,12 +56,14 @@
   #textHead button { border:1px solid #d0d7de; background:#f7f8fa; border-radius:6px; padding:3px 10px; font-size:12px; cursor:pointer; }
   #textBody { padding:10px 12px; white-space:pre-wrap; word-break:break-all; font-size:14px; line-height:1.8; max-height:44vh; overflow:auto; }
   #textBody mark.hl { background:#ffe066; padding:0 1px; }
+  .titleWrap { display:flex; flex-direction:column; }
+  .subnote { font-size:11px; color:#8a94a6; margin-top:3px; line-height:1.4; }
   #textBody .secTitle { font-weight:bold; color:#0d6efd; font-size:13px; margin:10px 0 4px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>产需信息汇编 · 在线检索</h1>
+  <div class="titleWrap"><h1>产需信息汇编 · 在线检索</h1><div class="subnote">注：为方便工作需要，特制定本链接，内容仅做参考，有疑问请联系。作者：树莓ge</div></div>
   <input id="q" placeholder="输入企业名称 / 产品 / 原材料 / 关键词，如：中煤远大、水泥、轴承、联系人…">
   <button id="btnEnt">企业名录</button>
   <button id="btnThumb">缩略图</button>
@@ -255,7 +257,7 @@ function preloadNear(p) {
 function ensureBoxes(p, cb) {
   if (window.BOXES && window.BOXES[p]) { cb(); return; }
   var pad = String(p).padStart(4, '0');
-  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@9bc2f5381d8a8083681c0a9e4552271e918edd8d/boxes/' + pad + '.js', 'boxes/' + pad + '.js'];
+  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@92da2528e35c2b4a384b3ada208663f3e9373077/boxes/' + pad + '.js', 'boxes/' + pad + '.js'];
   var i = 0;
   function tryNext() {
     if (i >= urls.length) { cb(); return; }
@@ -387,7 +389,7 @@ var bt = $('btnTextToggle');
 if (bt) bt.addEventListener('click', function () { textOpen = !textOpen; renderText(cur); });
 // 数据加载：CDN 优先，失败回退本地；就绪后开放搜索
 (function loadData() {
-  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@9bc2f5381d8a8083681c0a9e4552271e918edd8d/data.js', 'https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/data.js', 'data.js'];
+  var urls = ['https://cdn.jsdelivr.net/gh/1206642927/chanshu@92da2528e35c2b4a384b3ada208663f3e9373077/data.js', 'https://cdn.jsdelivr.net/gh/1206642927/chanshu@master/data.js', 'data.js'];
   var i = 0;
   var tp = $('loadTip');
   function setTip(t, hide) {
@@ -397,7 +399,7 @@ if (bt) bt.addEventListener('click', function () { textOpen = !textOpen; renderT
   }
   setTip('正在加载检索数据（约1MB，仅首次需要）…');
   function ready() {
-    if (!(window.BOOK_META && window.BOOK_META.version >= 3)) { tryNext(); return; }
+    if (!(window.BOOK_META && window.BOOK_META.version >= 5)) { tryNext(); return; }
     PAGES = window.BOOK_DATA || [];
     META = window.BOOK_META || {};
     TOTAL = PAGES.length;
